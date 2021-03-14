@@ -14,7 +14,7 @@ options(bitmapType='cairo') # for X11 to work so PNG is recognized
 
 
 ## Load data
-data<-readRDS("/Volumes/cgm/sarc/scrna/analyses/20190919_analysis_dont_use/SCT_normalized_data_63K.Rds")
+data<-readRDS("/.../SCT_normalized_data_63K.Rds")
 
 ### Cell types
 cell.types=unique(data$celltype)
@@ -22,13 +22,13 @@ cell.types=cell.types[-c(4,13,17,18,20,21)]
 
 ### Gene list of IFN genes
 #IFN=read.table("/Volumes/cgm/sarc/scrna/ifn_inducible.txt")
-IFN=read.table("/s/cgm/Savoy/IFN-response-genes.txt")
+IFN=read.table("/.../IFN-response-genes.txt")
 IFN=as.vector(IFN$V1)
 IFN=IFN[which(IFN %in% rownames(data))]
 
 
 # Remove subjects
-keep=read.table("/s/cgm/Savoy/keep_samples.txt")
+keep=read.table("/.../keep_samples.txt")
 data2=data # create copy since it takes awhile to import
 
 
@@ -67,7 +67,7 @@ all.var=ddply(all.avg2, .(genes), summarise, variance=var(mean))
 all.genes.0=all.genes[!all.genes %in% IFN] # removing IFN genes
 # save both sets of genes for future reference
 sets=cbind(all.genes.0,IFN) 
-write.xlsx(sets,"/s/cgm/Savoy/CDF_gene_set_lists.xlsx")
+write.xlsx(sets,"/.../CDF_gene_set_lists.xlsx")
 
 
 # Use caution when calling GetAssayData. supply assay and slot arguments to make sure we're pulling the values we want. 
@@ -94,7 +94,7 @@ cdf.ifn2=data.frame(Gene=row.names(cdf.ifn),Log.Ratio=log((cdf.ifn$Case.IFN.avg+
 cdf.ubiquitous2=data.frame(Gene=row.names(cdf.ubiquitous),Log.Ratio=log((cdf.ubiquitous$Case.Ubiquitous.avg+1)/(cdf.ubiquitous$Control.Ubiquitous.avg+1),2),cell.type=cdf.ubiquitous$cell.type)
 
 ## Plot cdfs
-png("/s/cgm/Savoy/IFN_cdfs.png",width=4000,height=4000,res=300)
+png("/.../IFN_cdfs.png",width=4000,height=4000,res=300)
 # start plot
 par(mfrow=c(5,3))
 for(cell.type in cell.types){
@@ -118,7 +118,7 @@ for(cell.type in cell.types){
   addWorksheet(OUT, cell.type)
   writeData(OUT, sheet=cell.type, x=cp.ifn, rowNames=FALSE)
 }# end cell.type
-saveWorkbook(OUT,"/s/cgm/Savoy/IFN_cdf_values.xlsx")
+saveWorkbook(OUT,"/.../IFN_cdf_values.xlsx")
 
 ## Obtain pvalues for curve differences
 ks.p=data.frame()
@@ -126,4 +126,4 @@ for (cell.type in cell.types){
   ks=ks.test(cdf.ifn2[which(cdf.ifn2$cell.type==cell.type),2], cdf.ubiquitous2[which(cdf.ubiquitous2$cell.type==cell.type),2], alternative = "two.sided")
   ks.p<-rbind(ks.p, data.frame(P.value= ks$p.value, Cell.Type=cell.type))
 } # end cell.type
-write.xlsx(ks.p,"/s/cgm/Savoy/CDF_comparison_pvalues.xlsx")
+write.xlsx(ks.p,"/.../CDF_comparison_pvalues.xlsx")
